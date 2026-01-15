@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projeto RV</title>
+    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-physics-system@v4.1.0/dist/aframe-physics-system.js"></script>
+    <script src="https://unpkg.com/aframe-physics-extras/dist/aframe-physics-extras.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@7.0.0/dist/aframe-extras.min.js"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/aframe-locomotion@0.2.0/dist/aframe-locomotion.umd.min.js"></script> -->
+</head>
+<body>
+    <a-scene background="color: #000000" renderer="anisotropy: 8; foveationLevel: 1; physicallyCorrectLights: true; colorManagement: true; logarithmicDepthBuffer: false" stats="true" reflection="directionalLight:#light" shadow="type: pcfsoft">
+        <a-assets>
+            <a-asset-item id="env" src="assets/test_env.gltf"></a-asset-item>
+            <a-asset-item id="pino" src="assets/pino.gltf"></a-asset-item>
+        </a-assets>
+        <!-- <a-plane color="#FFFFFF" rotation="-90 0 0" scale="50 50 50"></a-plane> -->
+        <a-entity gltf-model="#env" material="color:#FFFFFF"></a-entity>
+        <a-entity id="light" position="0 10 0" light="castShadow: true; type: directional; intensity: 10; shadowMapWidth: 1024; shadowMapHeight: 1024; groundColor: #000000; color: #FFE4D9"></a-entity>
+        <a-entity gltf-model="#pino" material="color:#FFFFFF; roughness: 0.1"></a-entity>
+        <a-entity id="rig"
+            movement-controls="controls: keyboard"
+            position="0 0 0">
+        <a-entity camera
+            position="0 1 0"
+            look-controls="pointerLockEnabled: true"></a-entity>
+            
+        </a-entity>
+        
+    </a-scene>
+
+    
+    
+</body>
+</html>
