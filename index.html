@@ -17,9 +17,12 @@
             <a-asset-item id="pino" src="assets/pino.gltf"></a-asset-item>
         </a-assets>
         <!-- <a-plane color="#FFFFFF" rotation="-90 0 0" scale="50 50 50"></a-plane> -->
-        <a-entity gltf-model="#env" material="color:#FFFFFF"></a-entity>
-        <a-entity id="light" position="0 10 0" light="castShadow: true; type: directional; intensity: 10; shadowMapWidth: 1024; shadowMapHeight: 1024; groundColor: #000000; color: #FFE4D9"></a-entity>
-        <a-entity gltf-model="#pino" material="color:#FFFFFF; roughness: 0.1"></a-entity>
+        <a-entity gltf-model="#env" material="color:#FFFFFF" shadow="cast: true"></a-entity>
+        <a-entity id="light"
+        position="0 2.839 0"
+        light="castShadow: true; intensity: 10; shadowMapWidth: 1024; shadowMapHeight: 1024; groundColor: #000000; color: #FFE4D9; shadowCameraVisible: true; shadowBias: 0.001; shadowCameraFar: 5.94; shadowCameraNear: 1.73; shadowCameraTop: 6.18; shadowCameraRight: 7.22; shadowCameraBottom: -8.28; shadowCameraLeft: -6.41"
+        ></a-entity>
+        <a-entity gltf-model="#pino" material="color:#FFFFFF; roughness: 0.1" shadow="cast:true"></a-entity>
         <a-entity id="rig"
             movement-controls="controls: keyboard"
             position="0 0 0">
