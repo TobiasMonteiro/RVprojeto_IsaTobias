@@ -33,6 +33,16 @@
 			]
 		}
 	],
+	"materials":[
+		{
+			"doubleSided":true,
+			"name":"env",
+			"pbrMetallicRoughness":{
+				"metallicFactor":0,
+				"roughnessFactor":0.5
+			}
+		}
+	],
 	"meshes":[
 		{
 			"name":"Cube.001",
@@ -43,7 +53,8 @@
 						"NORMAL":1,
 						"TEXCOORD_0":2
 					},
-					"indices":3
+					"indices":3,
+					"material":0
 				}
 			]
 		},
@@ -112,10 +123,10 @@
 		{
 			"bufferView":4,
 			"componentType":5126,
-			"count":272,
+			"count":224,
 			"max":[
 				7.531978607177734,
-				3.1696789264678955,
+				3.323883295059204,
 				-5.402356147766113
 			],
 			"min":[
@@ -128,19 +139,19 @@
 		{
 			"bufferView":5,
 			"componentType":5126,
-			"count":272,
+			"count":224,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":6,
 			"componentType":5126,
-			"count":272,
+			"count":224,
 			"type":"VEC2"
 		},
 		{
 			"bufferView":7,
 			"componentType":5123,
-			"count":900,
+			"count":684,
 			"type":"SCALAR"
 		},
 		{
@@ -205,56 +216,56 @@
 		},
 		{
 			"buffer":0,
-			"byteLength":3264,
+			"byteLength":2688,
 			"byteOffset":1680,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":3264,
-			"byteOffset":4944,
+			"byteLength":2688,
+			"byteOffset":4368,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":2176,
-			"byteOffset":8208,
+			"byteLength":1792,
+			"byteOffset":7056,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":1800,
-			"byteOffset":10384,
+			"byteLength":1368,
+			"byteOffset":8848,
 			"target":34963
 		},
 		{
 			"buffer":0,
 			"byteLength":5136,
-			"byteOffset":12184,
+			"byteOffset":10216,
 			"target":34962
 		},
 		{
 			"buffer":0,
 			"byteLength":5136,
-			"byteOffset":17320,
+			"byteOffset":15352,
 			"target":34962
 		},
 		{
 			"buffer":0,
 			"byteLength":3424,
-			"byteOffset":22456,
+			"byteOffset":20488,
 			"target":34962
 		},
 		{
 			"buffer":0,
 			"byteLength":4608,
-			"byteOffset":25880,
+			"byteOffset":23912,
 			"target":34963
 		}
 	],
 	"buffers":[
 		{
-			"byteLength":30488,
+			"byteLength":28520,
 			"uri":"test_env.bin"
 		}
 	]

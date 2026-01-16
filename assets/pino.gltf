@@ -20,7 +20,6 @@
 	],
 	"materials":[
 		{
-			"doubleSided":true,
 			"name":"pin",
 			"normalTexture":{
 				"index":0
@@ -69,17 +68,17 @@
 	"images":[
 		{
 			"mimeType":"image/jpeg",
-			"name":"pin_nrm",
+			"name":"pin_nrm.jpg",
 			"uri":"pin_nrm.jpg"
 		},
 		{
 			"mimeType":"image/jpeg",
-			"name":"pin_abd",
+			"name":"pin_abd.jpg",
 			"uri":"pin_abd.jpg"
 		},
 		{
 			"mimeType":"image/jpeg",
-			"name":"pin_rgh",
+			"name":"pin_rgh.jpg",
 			"uri":"pin_rgh.jpg"
 		}
 	],
