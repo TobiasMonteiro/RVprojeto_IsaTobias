@@ -8,33 +8,54 @@
     <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-physics-system@v4.1.0/dist/aframe-physics-system.js"></script>
     <script src="https://unpkg.com/aframe-physics-extras/dist/aframe-physics-extras.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@7.0.0/dist/aframe-extras.min.js"></script>
+    <script src="https://unpkg.com/aframe-event-set-component@^4.1.1/dist/aframe-event-set-component.min.js"></script>
     <!-- <script src="https://cdn.jsdelivr.net/npm/aframe-locomotion@0.2.0/dist/aframe-locomotion.umd.min.js"></script> -->
 </head>
 <body>
     <a-scene background="color: #000000" renderer="anisotropy: 8; foveationLevel: 1; physicallyCorrectLights: true; colorManagement: true; logarithmicDepthBuffer: false" stats="true" reflection="directionalLight:#light" shadow="type: pcfsoft">
         <a-assets>
-            <a-asset-item id="env" src="assets/test_env.gltf"></a-asset-item>
+            <a-asset-item id="envModel" src="assets/test_env.gltf"></a-asset-item>
             <a-asset-item id="pinoModel" src="assets/pino.gltf"></a-asset-item>
+            <a-asset-item id="bolaModel" src="assets/bola.gltf"></a-asset-item>
             <img id="pinAbd" src="assets/pin_abd.jpg">
             <img id="pinNrm" src="assets/pin_nrm.jpg">
             <img id="pinRgh" src="assets/pin_rgh.jpg">
-    </a-assets>
-    <a-mixin
-    id="pino"
-    geometry="#pinoModel"
-    hoverable
-    grabbable
-    stretchable
-    draggable
-    dynamic-body
-    ></a-mixin>
-        <!-- <a-plane color="#FFFFFF" rotation="-90 0 0" scale="50 50 50"></a-plane> -->
-        <a-entity gltf-model="#env" material="color:#FFFFFF" shadow="cast: true"></a-entity>
+        </a-assets>
+
+        <a-mixin
+        id="pino"
+        gltf-model="#pinoModel"
+        hoverable
+        grabbable
+        stretchable
+        draggable
+        dynamic-body
+        material="color:#FFFFFF; roughness: 1; src: #pinAbd; normalMap: #pinNrm; roughnessMap: #pinRgh"
+        shadow="cast:true"
+        ></a-mixin>
+
+        <a-mixin
+        id="bola"
+        gltf-model="#bolaModel"
+        hoverable
+        grabbable
+        draggable
+        dynamic-body
+        shadow="cast:true"
+        ></a-mixin>
+
+        <a-entity id="env"
+        gltf-model="#envModel"
+        material="color:#FFFFFF"
+        shadow="cast: true"
+        static-body
+        ></a-entity>
         <a-entity id="light"
         position="0 2.839 0"
-        light="castShadow: true; intensity: 10; shadowMapWidth: 1024; shadowMapHeight: 1024; groundColor: #000000; color: #FFE4D9; shadowCameraVisible: true; shadowBias: 0.001; shadowCameraFar: 5.94; shadowCameraNear: 1.73; shadowCameraTop: 6.18; shadowCameraRight: 7.22; shadowCameraBottom: -8.28; shadowCameraLeft: -6.41"
-        ></a-entity>
-        <a-entity class="pinos" mixin="pino" material="color:#FFFFFF; roughness: 1; src: #pinAbd; normalMap: #pinNrm; roughnessMap: #pinRgh" shadow="cast:true"></a-entity>
+        light="castShadow: true; intensity: 15; shadowMapWidth: 1024; shadowMapHeight: 1024; groundColor: #000000; color: #ffe3bd; shadowCameraVisible: true; shadowBias: -0.01; shadowCameraFar: 5.94; shadowCameraNear: 1.73; shadowCameraTop: 6.18; shadowCameraRight: 7.22; shadowCameraBottom: -8.28; shadowCameraLeft: -6.41; distance: 5.74; type: spot"
+        rotation="-90 0 0"></a-entity>
+        <a-entity class="pinos" mixin="pino"></a-entity>
+        <a-entity class="bolas" mixin="bola" position="0 0.175 2"></a-entity>
         <a-entity id="rig"
             movement-controls="controls: keyboard"
             position="0 0 0">
