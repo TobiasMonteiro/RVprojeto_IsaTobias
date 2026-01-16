@@ -14,18 +14,27 @@
     <a-scene background="color: #000000" renderer="anisotropy: 8; foveationLevel: 1; physicallyCorrectLights: true; colorManagement: true; logarithmicDepthBuffer: false" stats="true" reflection="directionalLight:#light" shadow="type: pcfsoft">
         <a-assets>
             <a-asset-item id="env" src="assets/test_env.gltf"></a-asset-item>
-            <a-asset-item id="pino" src="assets/pino.gltf"></a-asset-item>
+            <a-asset-item id="pinoModel" src="assets/pino.gltf"></a-asset-item>
             <img id="pinAbd" src="assets/pin_abd.jpg">
             <img id="pinNrm" src="assets/pin_nrm.jpg">
             <img id="pinRgh" src="assets/pin_rgh.jpg">
     </a-assets>
+    <a-mixin
+    id="pino"
+    geometry="#pinoModel"
+    hoverable
+    grabbable
+    stretchable
+    draggable
+    dynamic-body
+    ></a-mixin>
         <!-- <a-plane color="#FFFFFF" rotation="-90 0 0" scale="50 50 50"></a-plane> -->
         <a-entity gltf-model="#env" material="color:#FFFFFF" shadow="cast: true"></a-entity>
         <a-entity id="light"
         position="0 2.839 0"
         light="castShadow: true; intensity: 10; shadowMapWidth: 1024; shadowMapHeight: 1024; groundColor: #000000; color: #FFE4D9; shadowCameraVisible: true; shadowBias: 0.001; shadowCameraFar: 5.94; shadowCameraNear: 1.73; shadowCameraTop: 6.18; shadowCameraRight: 7.22; shadowCameraBottom: -8.28; shadowCameraLeft: -6.41"
         ></a-entity>
-        <a-entity gltf-model="#pino" material="color:#FFFFFF; roughness: 1; src: #pinAbd; normalMap: #pinNrm; roughnessMap: #pinRgh" shadow="cast:true"></a-entity>
+        <a-entity class="pinos" mixin="pino" material="color:#FFFFFF; roughness: 1; src: #pinAbd; normalMap: #pinNrm; roughnessMap: #pinRgh" shadow="cast:true"></a-entity>
         <a-entity id="rig"
             movement-controls="controls: keyboard"
             position="0 0 0">
