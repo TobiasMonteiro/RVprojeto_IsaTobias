@@ -18,6 +18,16 @@
 			"name":"pin"
 		}
 	],
+	"materials":[
+		{
+			"doubleSided":true,
+			"name":"pin",
+			"pbrMetallicRoughness":{
+				"metallicFactor":0,
+				"roughnessFactor":0.5
+			}
+		}
+	],
 	"meshes":[
 		{
 			"name":"Cube",
@@ -28,7 +38,8 @@
 						"NORMAL":1,
 						"TEXCOORD_0":2
 					},
-					"indices":3
+					"indices":3,
+					"material":0
 				}
 			]
 		}
@@ -37,7 +48,7 @@
 		{
 			"bufferView":0,
 			"componentType":5126,
-			"count":529,
+			"count":546,
 			"max":[
 				0.07950106263160706,
 				0.4632887840270996,
@@ -53,13 +64,13 @@
 		{
 			"bufferView":1,
 			"componentType":5126,
-			"count":529,
+			"count":546,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":2,
 			"componentType":5126,
-			"count":529,
+			"count":546,
 			"type":"VEC2"
 		},
 		{
@@ -72,32 +83,32 @@
 	"bufferViews":[
 		{
 			"buffer":0,
-			"byteLength":6348,
+			"byteLength":6552,
 			"byteOffset":0,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":6348,
-			"byteOffset":6348,
+			"byteLength":6552,
+			"byteOffset":6552,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":4232,
-			"byteOffset":12696,
+			"byteLength":4368,
+			"byteOffset":13104,
 			"target":34962
 		},
 		{
 			"buffer":0,
 			"byteLength":5760,
-			"byteOffset":16928,
+			"byteOffset":17472,
 			"target":34963
 		}
 	],
 	"buffers":[
 		{
-			"byteLength":22688,
+			"byteLength":23232,
 			"uri":"pino.bin"
 		}
 	]
