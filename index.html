@@ -10,9 +10,29 @@
     <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@7.0.0/dist/aframe-extras.min.js"></script>
     <script src="https://unpkg.com/aframe-event-set-component@^4.1.1/dist/aframe-event-set-component.min.js"></script>
     <!-- <script src="https://cdn.jsdelivr.net/npm/aframe-locomotion@0.2.0/dist/aframe-locomotion.umd.min.js"></script> -->
+    <script>
+    // A fisica é ativada com o premir do botão
+    AFRAME.registerComponent("phase-shift", {
+        init: function () {
+        var el = this.el;
+        el.addEventListener("pointdown", function () {
+            el.setAttribute("collision-filter", { collisionForces: true });
+        });
+        el.addEventListener("pointup", function () {
+            el.setAttribute("collision-filter", { collisionForces: false });
+        });
+        },
+    });
+    </script>
 </head>
 <body>
-    <a-scene background="color: #000000" renderer="anisotropy: 8; foveationLevel: 1; physicallyCorrectLights: true; colorManagement: true; logarithmicDepthBuffer: false" stats="true" reflection="directionalLight:#light" shadow="type: pcfsoft">
+    <a-scene
+    background="color: #000000"
+    renderer="anisotropy: 8; foveationLevel: 1; physicallyCorrectLights: true; colorManagement: true; logarithmicDepthBuffer: false"
+    stats="true"
+    reflection="directionalLight:#light"
+    shadow="type: pcfsoft"
+    physics="debug: true; friction: 0; restitution: 0">
         <a-assets>
             <a-asset-item id="envModel" src="assets/test_env.gltf"></a-asset-item>
             <a-asset-item id="pinoModel" src="assets/pino.gltf"></a-asset-item>
@@ -30,7 +50,7 @@
         stretchable
         draggable
         dynamic-body
-        material="color:#FFFFFF; roughness: 1; src: #pinAbd; normalMap: #pinNrm; roughnessMap: #pinRgh"
+        material="src: #pinAbd; normalMap: #pinNrm; roughnessMap: #pinRgh; side: front"
         shadow="cast:true"
         ></a-mixin>
 
@@ -40,28 +60,45 @@
         hoverable
         grabbable
         draggable
-        dynamic-body
+        dynamic-body="shape: sphere; sphereRadius: .175"
         shadow="cast:true"
+        material="side: front"
         ></a-mixin>
+
+        <a-box
+        static-body
+        width="100"
+        height="0.01"
+        depth="100"
+        visible="false"
+        ></a-box>
 
         <a-entity id="env"
         gltf-model="#envModel"
         material="color:#FFFFFF"
         shadow="cast: true"
-        static-body
+        static-body="shape: hull"
         ></a-entity>
+        <a-entity light="type: ambient; color: ffffff; intensity: .1"></a-entity>
         <a-entity id="light"
-        position="0 2.839 0"
-        light="castShadow: true; intensity: 15; shadowMapWidth: 1024; shadowMapHeight: 1024; groundColor: #000000; color: #ffe3bd; shadowCameraVisible: true; shadowBias: -0.01; shadowCameraFar: 5.94; shadowCameraNear: 1.73; shadowCameraTop: 6.18; shadowCameraRight: 7.22; shadowCameraBottom: -8.28; shadowCameraLeft: -6.41; distance: 5.74; type: spot"
+        position="0 2.839 -1"
+        light="castShadow: true; intensity: 15; shadowMapWidth: 2048; shadowMapHeight: 2048; color: #ffe3bd; shadowCameraVisible: false; shadowBias: -0.0001; shadowCameraFar: 5.94; shadowCameraNear: 1.73; shadowCameraTop: 6.18; shadowCameraRight: 7.22; shadowCameraBottom: -8.28; shadowCameraLeft: -6.41; distance: 5.74; type: spot"
         rotation="-90 0 0"></a-entity>
         <a-entity class="pinos" mixin="pino"></a-entity>
-        <a-entity class="bolas" mixin="bola" position="0 0.175 2"></a-entity>
+        <a-entity class="bolas" mixin="bola" position="0 1 2"></a-entity>
         <a-entity id="rig"
             movement-controls="controls: keyboard"
-            position="0 0 0">
+            position="0 0 4">
         <a-entity camera
             position="0 1 0"
-            look-controls="pointerLockEnabled: true"></a-entity>
+            look-controls="pointerLockEnabled: true"
+            ><a-cursor
+            raycaster=""
+            physics-collider
+            phase-shift
+            collision-filter="collisionForces: false"
+            static-body="shape: sphere; sphereRadius: 0.02"
+            ></a-cursor></a-entity>
             
         </a-entity>
         
