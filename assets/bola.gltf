@@ -3,6 +3,9 @@
 		"generator":"Khronos glTF Blender I/O v5.0.21",
 		"version":"2.0"
 	},
+	"extensionsUsed":[
+		"KHR_materials_specular"
+	],
 	"scene":0,
 	"scenes":[
 		{
@@ -15,30 +18,38 @@
 	"nodes":[
 		{
 			"mesh":0,
-			"name":"pin"
+			"name":"Cube.001",
+			"scale":[
+				0.19709992408752441,
+				0.19709992408752441,
+				0.19709992408752441
+			]
 		}
 	],
 	"materials":[
 		{
 			"doubleSided":true,
-			"name":"pin",
-			"normalTexture":{
-				"index":0
-			},
-			"pbrMetallicRoughness":{
-				"baseColorTexture":{
-					"index":1
-				},
-				"metallicFactor":0,
-				"metallicRoughnessTexture":{
-					"index":2
+			"extensions":{
+				"KHR_materials_specular":{
+					"specularFactor":0.6954314708709717
 				}
+			},
+			"name":"Material",
+			"pbrMetallicRoughness":{
+				"baseColorFactor":[
+					0,
+					0,
+					0.4015718400478363,
+					1
+				],
+				"metallicFactor":0,
+				"roughnessFactor":0.10000000149011612
 			}
 		}
 	],
 	"meshes":[
 		{
-			"name":"Cube",
+			"name":"Cube.001",
 			"primitives":[
 				{
 					"attributes":{
@@ -52,109 +63,72 @@
 			]
 		}
 	],
-	"textures":[
-		{
-			"sampler":0,
-			"source":0
-		},
-		{
-			"sampler":0,
-			"source":1
-		},
-		{
-			"sampler":0,
-			"source":2
-		}
-	],
-	"images":[
-		{
-			"mimeType":"image/jpeg",
-			"name":"pin_nrm",
-			"uri":"pin_nrm.jpg"
-		},
-		{
-			"mimeType":"image/jpeg",
-			"name":"pin_abd",
-			"uri":"pin_abd.jpg"
-		},
-		{
-			"mimeType":"image/jpeg",
-			"name":"pin_rgh",
-			"uri":"pin_rgh.jpg"
-		}
-	],
 	"accessors":[
 		{
 			"bufferView":0,
 			"componentType":5126,
-			"count":546,
+			"count":885,
 			"max":[
-				0.07950106263160706,
-				0.4632887840270996,
-				0.07950069010257721
+				0.8342635035514832,
+				0.8342028856277466,
+				0.8342633247375488
 			],
 			"min":[
-				-0.07950105518102646,
-				-8.790334686636925e-05,
-				-0.07950140535831451
+				-0.8342635035514832,
+				-0.834263265132904,
+				-0.8342633247375488
 			],
 			"type":"VEC3"
 		},
 		{
 			"bufferView":1,
 			"componentType":5126,
-			"count":546,
+			"count":885,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":2,
 			"componentType":5126,
-			"count":546,
+			"count":885,
 			"type":"VEC2"
 		},
 		{
 			"bufferView":3,
 			"componentType":5123,
-			"count":2880,
+			"count":4272,
 			"type":"SCALAR"
 		}
 	],
 	"bufferViews":[
 		{
 			"buffer":0,
-			"byteLength":6552,
+			"byteLength":10620,
 			"byteOffset":0,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":6552,
-			"byteOffset":6552,
+			"byteLength":10620,
+			"byteOffset":10620,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":4368,
-			"byteOffset":13104,
+			"byteLength":7080,
+			"byteOffset":21240,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":5760,
-			"byteOffset":17472,
+			"byteLength":8544,
+			"byteOffset":28320,
 			"target":34963
-		}
-	],
-	"samplers":[
-		{
-			"magFilter":9729,
-			"minFilter":9987
 		}
 	],
 	"buffers":[
 		{
-			"byteLength":23232,
-			"uri":"pino.bin"
+			"byteLength":36864,
+			"uri":"bola.bin"
 		}
 	]
 }
