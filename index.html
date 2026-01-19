@@ -9,20 +9,23 @@
     <script src="https://unpkg.com/aframe-physics-extras/dist/aframe-physics-extras.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@7.0.0/dist/aframe-extras.min.js"></script>
     <script src="https://unpkg.com/aframe-event-set-component@^4.1.1/dist/aframe-event-set-component.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/aframe-desktop-vr-controller@0.1.3/dist/desktop-vr-controller.min.js"></script>
+    <script src="https://unpkg.com/super-hands@^3.0.6/dist/super-hands.min.js"></script>
     <!-- <script src="https://cdn.jsdelivr.net/npm/aframe-locomotion@0.2.0/dist/aframe-locomotion.umd.min.js"></script> -->
     <script>
-    // A fisica é ativada com o premir do botão
-    AFRAME.registerComponent("phase-shift", {
-        init: function () {
-        var el = this.el;
-        el.addEventListener("pointdown", function () {
-            el.setAttribute("collision-filter", { collisionForces: true });
+        if (!AFRAME.components['desktop-vr-controller']) require('aframe-desktop-vr-controller')
+        // A fisica é ativada com o premir do botão
+        AFRAME.registerComponent("phase-shift", {
+            init: function () {
+            var el = this.el;
+            el.addEventListener("pointdown", function () {
+                el.setAttribute("collision-filter", { collisionForces: true });
+            });
+            el.addEventListener("pointup", function () {
+                el.setAttribute("collision-filter", { collisionForces: false });
+            });
+            },
         });
-        el.addEventListener("pointup", function () {
-            el.setAttribute("collision-filter", { collisionForces: false });
-        });
-        },
-    });
     </script>
 </head>
 <body>
@@ -32,7 +35,7 @@
     stats="true"
     reflection="directionalLight:#light"
     shadow="type: pcfsoft"
-    physics="debug: true; friction: 0; restitution: 0">
+    physics="debug: true; friction: 0.1; restitution: 0">
         <a-assets>
             <a-asset-item id="envModel" src="assets/test_env.gltf"></a-asset-item>
             <a-asset-item id="pinoModel" src="assets/pino.gltf"></a-asset-item>
@@ -40,30 +43,41 @@
             <img id="pinAbd" src="assets/pin_abd.jpg">
             <img id="pinNrm" src="assets/pin_nrm.jpg">
             <img id="pinRgh" src="assets/pin_rgh.jpg">
+            <a-mixin
+            id="pino"
+            gltf-model="#pinoModel"
+            hoverable
+            dynamic-body="shape: hull"
+            material="src: #pinAbd; normalMap: #pinNrm; roughnessMap: #pinRgh; side: front"
+            shadow="cast: true"
+            ></a-mixin>
+
+            <a-mixin
+            id="bola"
+            gltf-model="#bolaModel"
+            hoverable
+            grabbable
+            draggable
+            dynamic-body="shape: sphere; sphereRadius: .17"
+            shadow="cast: true"
+            material="side: front"
+            ></a-mixin>
+
+            <a-mixin
+                id="cube"
+                geometry="primitive: box; width: 0.33; height: 0.33; depth: 0.33"
+                hoverable
+                grabbable
+                stretchable
+                draggable
+                event-set__hoveron="_event: hover-start; material.opacity: 0.7; transparent: true"
+                event-set__hoveroff="_event: hover-end; material.opacity: 1; transparent: false"
+                dynamic-body
+                shadow
+            ></a-mixin>
         </a-assets>
 
-        <a-mixin
-        id="pino"
-        gltf-model="#pinoModel"
-        hoverable
-        grabbable
-        stretchable
-        draggable
-        dynamic-body
-        material="src: #pinAbd; normalMap: #pinNrm; roughnessMap: #pinRgh; side: front"
-        shadow="cast:true"
-        ></a-mixin>
-
-        <a-mixin
-        id="bola"
-        gltf-model="#bolaModel"
-        hoverable
-        grabbable
-        draggable
-        dynamic-body="shape: sphere; sphereRadius: .175"
-        shadow="cast:true"
-        material="side: front"
-        ></a-mixin>
+        
 
         <a-box
         static-body
@@ -71,6 +85,7 @@
         height="0.01"
         depth="100"
         visible="false"
+        position="0 -0.005 0"
         ></a-box>
 
         <a-entity id="env"
@@ -79,28 +94,48 @@
         shadow="cast: true"
         static-body="shape: hull"
         ></a-entity>
-        <a-entity light="type: ambient; color: ffffff; intensity: .1"></a-entity>
+        <a-entity light="type: ambient; color: #ffffff; intensity: .1"></a-entity>
         <a-entity id="light"
         position="0 2.839 -1"
         light="castShadow: true; intensity: 15; shadowMapWidth: 2048; shadowMapHeight: 2048; color: #ffe3bd; shadowCameraVisible: false; shadowBias: -0.0001; shadowCameraFar: 5.94; shadowCameraNear: 1.73; shadowCameraTop: 6.18; shadowCameraRight: 7.22; shadowCameraBottom: -8.28; shadowCameraLeft: -6.41; distance: 5.74; type: spot"
         rotation="-90 0 0"></a-entity>
         <a-entity class="pinos" mixin="pino"></a-entity>
-        <a-entity class="bolas" mixin="bola" position="0 1 2"></a-entity>
+        <a-entity class="bolas" mixin="bola" position="0 .175 2"></a-entity>
+
+        
+
         <a-entity id="rig"
             movement-controls="controls: keyboard"
             position="0 0 4">
-        <a-entity camera
-            position="0 1 0"
-            look-controls="pointerLockEnabled: true"
-            ><a-cursor
-            raycaster=""
-            physics-collider
-            phase-shift
-            collision-filter="collisionForces: false"
-            static-body="shape: sphere; sphereRadius: 0.02"
-            ></a-cursor></a-entity>
-            
+            <a-entity camera
+                position="0 1 0"
+                wasd-controls
+                look-controls="magicWindowTrackingEnabled: false; touchEnabled: false; mouseEnabled: true"
+                >
+                <!-- <a-cursor
+                raycaster=""
+                physics-collider
+                phase-shift
+                collision-filter="collisionForces: false"
+                static-body="shape: sphere; sphereRadius: 0.02"
+                ></a-cursor> -->
+            </a-entity>
+
+            <a-entity id="leftHand" laser-controls="hand: left" raycaster="objects: .raycastable" super-hands hand-controls="hand-left"
+                position="-0.4 1.4 -0.5"
+                desktop-vr-controller></a-entity>
+            <a-entity id="rightHand" laser-controls="hand: right" raycaster="objects: .raycastable" line="color: #118A7E" super-hands hand-controls="hand: right"
+                position="0.4 1.4 -0.5"
+                desktop-vr-controller></a-entity>
         </a-entity>
+
+
+        <a-entity
+        class="cube"
+        mixin="cube"
+        position="0 0.265 -1"
+        material="color: red"
+        ></a-entity>
         
     </a-scene>
 
