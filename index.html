@@ -32,7 +32,7 @@
     stats="true"
     reflection="directionalLight:#light"
     shadow="type: pcfsoft"
-    physics="debug: true; friction: 0; restitution: 0">
+    physics="debug: false; friction: 0.1; restitution: 0.3; gravity: -9.8">
         <a-assets>
             <a-asset-item id="envModel" src="assets/test_env.gltf"></a-asset-item>
             <a-asset-item id="pinoModel" src="assets/pino.gltf"></a-asset-item>
@@ -49,7 +49,7 @@
         grabbable
         stretchable
         draggable
-        dynamic-body
+        dynamic-body="mass: 1.5; linearDamping: 0.4; angularDamping: 0.4"
         material="src: #pinAbd; normalMap: #pinNrm; roughnessMap: #pinRgh; side: front"
         shadow="cast:true"
         ></a-mixin>
@@ -60,7 +60,7 @@
         hoverable
         grabbable
         draggable
-        dynamic-body="shape: sphere; sphereRadius: .175"
+        dynamic-body="shape: sphere; sphereRadius: .175; mass: 7; linearDamping: 0.1; angularDamping: 0.1"
         shadow="cast:true"
         material="side: front"
         ></a-mixin>
@@ -79,7 +79,17 @@
         shadow="cast: true"
         static-body="shape: hull"
         ></a-entity>
-        <a-entity light="type: ambient; color: ffffff; intensity: .1"></a-entity>
+
+        <!-- Piso visual com textura de madeira (renderizado depois do env para ficar por cima) -->
+        <a-plane
+        position="0 0.01 0"
+        rotation="-90 0 0"
+        width="100"
+        height="100"
+        material="color: #D4A574; side: double; roughness: 0.8; metalness: 0.1"
+        shadow="receive: true"
+        ></a-plane>
+        <a-entity light="type: ambient; color: ffffff; intensity: 0.5"></a-entity>
         <a-entity id="light"
         position="0 2.839 -1"
         light="castShadow: true; intensity: 15; shadowMapWidth: 2048; shadowMapHeight: 2048; color: #ffe3bd; shadowCameraVisible: false; shadowBias: -0.0001; shadowCameraFar: 5.94; shadowCameraNear: 1.73; shadowCameraTop: 6.18; shadowCameraRight: 7.22; shadowCameraBottom: -8.28; shadowCameraLeft: -6.41; distance: 5.74; type: spot"
@@ -93,18 +103,25 @@
             position="0 1 0"
             look-controls="pointerLockEnabled: true"
             ><a-cursor
-            raycaster=""
+            raycaster="objects: .bolas, [mixin~=bola], [gltf-model='#bolaModel']; far: 15; interval: 100"
             physics-collider
             phase-shift
             collision-filter="collisionForces: false"
             static-body="shape: sphere; sphereRadius: 0.02"
+            bowling-cursor-interaction="throwForce: 20; maxThrowForce: 40; grabDistance: 0.6"
             ></a-cursor></a-entity>
             
         </a-entity>
         
     </a-scene>
 
-    
+    <script src="bowling-scoreboard.js"></script>
+    <script src="bowling-gutters.js"></script>
+    <script src="setup-gutters.js"></script>
+    <script src="bowling-lane-colliders.js"></script>
+    <script src="setup-lane.js"></script>
+    <script src="bowling-cursor-interaction.js"></script>
+    <script src="setup-pins.js"></script>
     
 </body>
 </html>
