@@ -9,20 +9,23 @@
     <script src="https://unpkg.com/aframe-physics-extras/dist/aframe-physics-extras.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@7.0.0/dist/aframe-extras.min.js"></script>
     <script src="https://unpkg.com/aframe-event-set-component@^4.1.1/dist/aframe-event-set-component.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/aframe-desktop-vr-controller@0.1.3/dist/desktop-vr-controller.min.js"></script>
+    <script src="https://unpkg.com/super-hands@^3.0.6/dist/super-hands.min.js"></script>
     <!-- <script src="https://cdn.jsdelivr.net/npm/aframe-locomotion@0.2.0/dist/aframe-locomotion.umd.min.js"></script> -->
     <script>
-    // A fisica é ativada com o premir do botão
-    AFRAME.registerComponent("phase-shift", {
-        init: function () {
-        var el = this.el;
-        el.addEventListener("pointdown", function () {
-            el.setAttribute("collision-filter", { collisionForces: true });
+        if (!AFRAME.components['desktop-vr-controller']) require('aframe-desktop-vr-controller')
+        // A fisica é ativada com o premir do botão
+        AFRAME.registerComponent("phase-shift", {
+            init: function () {
+            var el = this.el;
+            el.addEventListener("pointdown", function () {
+                el.setAttribute("collision-filter", { collisionForces: true });
+            });
+            el.addEventListener("pointup", function () {
+                el.setAttribute("collision-filter", { collisionForces: false });
+            });
+            },
         });
-        el.addEventListener("pointup", function () {
-            el.setAttribute("collision-filter", { collisionForces: false });
-        });
-        },
-    });
     </script>
 </head>
 <body>
@@ -32,7 +35,7 @@
     stats="true"
     reflection="directionalLight:#light"
     shadow="type: pcfsoft"
-    physics="debug: false; friction: 0.1; restitution: 0.3; gravity: -9.8">
+    physics="debug: true; friction: 0; restitution: 0">
         <a-assets>
             <a-asset-item id="envModel" src="assets/test_env.gltf"></a-asset-item>
             <a-asset-item id="pinoModel" src="assets/pino.gltf"></a-asset-item>
@@ -49,7 +52,7 @@
         grabbable
         stretchable
         draggable
-        dynamic-body="mass: 1.5; linearDamping: 0.4; angularDamping: 0.4"
+        dynamic-body
         material="src: #pinAbd; normalMap: #pinNrm; roughnessMap: #pinRgh; side: front"
         shadow="cast:true"
         ></a-mixin>
@@ -60,7 +63,7 @@
         hoverable
         grabbable
         draggable
-        dynamic-body="shape: sphere; sphereRadius: .175; mass: 7; linearDamping: 0.1; angularDamping: 0.1"
+        dynamic-body="shape: sphere; sphereRadius: .175"
         shadow="cast:true"
         material="side: front"
         ></a-mixin>
@@ -71,6 +74,7 @@
         height="0.01"
         depth="100"
         visible="false"
+        position="0 -0.005 0"
         ></a-box>
 
         <a-entity id="env"
@@ -79,23 +83,16 @@
         shadow="cast: true"
         static-body="shape: hull"
         ></a-entity>
-
-        <!-- Piso visual com textura de madeira (renderizado depois do env para ficar por cima) -->
-        <a-plane
-        position="0 0.01 0"
-        rotation="-90 0 0"
-        width="100"
-        height="100"
-        material="color: #D4A574; side: double; roughness: 0.8; metalness: 0.1"
-        shadow="receive: true"
-        ></a-plane>
-        <a-entity light="type: ambient; color: ffffff; intensity: 0.5"></a-entity>
+        <a-entity light="type: ambient; color: ffffff; intensity: .1"></a-entity>
         <a-entity id="light"
         position="0 2.839 -1"
         light="castShadow: true; intensity: 15; shadowMapWidth: 2048; shadowMapHeight: 2048; color: #ffe3bd; shadowCameraVisible: false; shadowBias: -0.0001; shadowCameraFar: 5.94; shadowCameraNear: 1.73; shadowCameraTop: 6.18; shadowCameraRight: 7.22; shadowCameraBottom: -8.28; shadowCameraLeft: -6.41; distance: 5.74; type: spot"
         rotation="-90 0 0"></a-entity>
         <a-entity class="pinos" mixin="pino"></a-entity>
-        <a-entity class="bolas" mixin="bola" position="0 1 2"></a-entity>
+        <a-entity class="bolas" mixin="bola" position="0 .175 2"></a-entity>
+
+        
+
         <a-entity id="rig"
             movement-controls="controls: keyboard"
             position="0 0 4">
@@ -103,15 +100,22 @@
             position="0 1 0"
             look-controls="pointerLockEnabled: true"
             ><a-cursor
-            raycaster="objects: .bolas, [mixin~=bola], [gltf-model='#bolaModel']; far: 15; interval: 100"
+            raycaster=""
             physics-collider
             phase-shift
             collision-filter="collisionForces: false"
             static-body="shape: sphere; sphereRadius: 0.02"
-            bowling-cursor-interaction="throwForce: 20; maxThrowForce: 40; grabDistance: 0.6"
             ></a-cursor></a-entity>
             
         </a-entity>
+
+
+        <a-entity
+        class="cube"
+        mixin="cube"
+        position="0 0.265 -1"
+        material="color: red"
+        ></a-entity>
         
     </a-scene>
 
