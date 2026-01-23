@@ -1,131 +1,544 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Projeto RV</title>
+    <title>Boliche VR - A-Frame</title>
+    
+    <!-- A-Frame e extensões -->
     <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-physics-system@v4.1.0/dist/aframe-physics-system.js"></script>
-    <script src="https://unpkg.com/aframe-physics-extras/dist/aframe-physics-extras.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@7.0.0/dist/aframe-extras.min.js"></script>
-    <script src="https://unpkg.com/aframe-event-set-component@^4.1.1/dist/aframe-event-set-component.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/aframe-desktop-vr-controller@0.1.3/dist/desktop-vr-controller.min.js"></script>
-    <script src="https://unpkg.com/super-hands@^3.0.6/dist/super-hands.min.js"></script>
-    <!-- <script src="https://cdn.jsdelivr.net/npm/aframe-locomotion@0.2.0/dist/aframe-locomotion.umd.min.js"></script> -->
-    <script>
-        if (!AFRAME.components['desktop-vr-controller']) require('aframe-desktop-vr-controller')
-        // A fisica é ativada com o premir do botão
-        AFRAME.registerComponent("phase-shift", {
-            init: function () {
-            var el = this.el;
-            el.addEventListener("pointdown", function () {
-                el.setAttribute("collision-filter", { collisionForces: true });
-            });
-            el.addEventListener("pointup", function () {
-                el.setAttribute("collision-filter", { collisionForces: false });
-            });
-            },
-        });
-    </script>
+    <script src="https://cdn.jsdelivr.net/npm/aframe-extras@7.0.0/dist/aframe-extras.min.js"></script>
+    
+    <style>
+        /* HUD overlay para instruções */
+        #hud {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            color: white;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 15px 20px;
+            border-radius: 10px;
+            z-index: 999;
+            font-size: 14px;
+            max-width: 300px;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        #hud h3 {
+            margin: 0 0 10px 0;
+            color: #4CC3D9;
+            font-size: 16px;
+        }
+        #hud p {
+            margin: 5px 0;
+            line-height: 1.4;
+        }
+        #hud kbd {
+            background: #333;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            border: 1px solid #555;
+        }
+        
+        /* Botão de reset */
+        #reset-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 999;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(238, 90, 36, 0.4);
+        }
+        #reset-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(238, 90, 36, 0.6);
+        }
+        
+        /* Indicador de força */
+        #power-indicator {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 200px;
+            height: 30px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 15px;
+            z-index: 999;
+            overflow: hidden;
+            display: none;
+            border: 2px solid #4CC3D9;
+        }
+        #power-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #00ff88, #ffff00, #ff4444);
+            transition: width 0.05s ease;
+        }
+        #power-text {
+            position: absolute;
+            width: 100%;
+            text-align: center;
+            line-height: 30px;
+            color: white;
+            font-weight: bold;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            text-shadow: 1px 1px 2px black;
+        }
+    </style>
 </head>
 <body>
+    <!-- HUD de instruções -->
+    <div id="hud">
+        <h3>🎳 Controles</h3>
+        <p><strong>🖥️ Desktop:</strong></p>
+        <p><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> - Mover</p>
+        <p><kbd>Espaço</kbd> - Pular</p>
+        <p><kbd>Mouse</kbd> - Olhar ao redor</p>
+        <p><kbd>Clique</kbd> na bola - Preparar lançamento</p>
+        <p><kbd>Segure</kbd> para carregar força</p>
+        <p><kbd>Solte</kbd> para lançar</p>
+        <p><strong>🥽 VR:</strong></p>
+        <p>Chegue perto da bola e pressione <kbd>Trigger</kbd> ou <kbd>Grip</kbd> para pegar</p>
+        <p>Mova a mão e solte para jogar a bola</p>
+        <p>Segure mais tempo para mais força</p>
+    </div>
+    
+    <!-- Botão de reset -->
+    <button id="reset-btn" onclick="resetGame()">🔄 Reiniciar Jogo</button>
+    
+    <!-- Indicador de força -->
+    <div id="power-indicator">
+        <div id="power-bar"></div>
+        <span id="power-text">FORÇA: 0%</span>
+    </div>
+
     <a-scene
-    background="color: #000000"
-    renderer="anisotropy: 8; foveationLevel: 1; physicallyCorrectLights: true; colorManagement: true; logarithmicDepthBuffer: false"
-    stats="true"
-    reflection="directionalLight:#light"
-    shadow="type: pcfsoft"
-    physics="debug: true; friction: 0; restitution: 0">
-        <a-assets>
-            <a-asset-item id="envModel" src="assets/test_env.gltf"></a-asset-item>
+        background="color: #1a1a2e"
+        physics="gravity: -9.8; friction: 0.5; restitution: 0.3; iterations: 10"
+        loading-screen="dotsColor: #4CC3D9; backgroundColor: #1a1a2e">
+        
+        <!-- Assets -->
+        <a-assets timeout="30000">
             <a-asset-item id="pinoModel" src="assets/pino.gltf"></a-asset-item>
             <a-asset-item id="bolaModel" src="assets/bola.gltf"></a-asset-item>
             <img id="pinAbd" src="assets/pin_abd.jpg">
             <img id="pinNrm" src="assets/pin_nrm.jpg">
             <img id="pinRgh" src="assets/pin_rgh.jpg">
+            <!-- Texturas extras -->
+            <img id="woodTexture" src="https://cdn.aframe.io/a-painter/images/floor.jpg" crossorigin="anonymous">
         </a-assets>
 
-        <a-mixin
-        id="pino"
-        gltf-model="#pinoModel"
-        hoverable
-        grabbable
-        stretchable
-        draggable
-        dynamic-body
-        material="src: #pinAbd; normalMap: #pinNrm; roughnessMap: #pinRgh; side: front"
-        shadow="cast:true"
-        ></a-mixin>
-
-        <a-mixin
-        id="bola"
-        gltf-model="#bolaModel"
-        hoverable
-        grabbable
-        draggable
-        dynamic-body="shape: sphere; sphereRadius: .175"
-        shadow="cast:true"
-        material="side: front"
-        ></a-mixin>
-
-        <a-box
-        static-body
-        width="100"
-        height="0.01"
-        depth="100"
-        visible="false"
-        position="0 -0.005 0"
-        ></a-box>
-
-        <a-entity id="env"
-        gltf-model="#envModel"
-        material="color:#FFFFFF"
-        shadow="cast: true"
-        static-body="shape: hull"
-        ></a-entity>
-        <a-entity light="type: ambient; color: ffffff; intensity: .1"></a-entity>
-        <a-entity id="light"
-        position="0 2.839 -1"
-        light="castShadow: true; intensity: 15; shadowMapWidth: 2048; shadowMapHeight: 2048; color: #ffe3bd; shadowCameraVisible: false; shadowBias: -0.0001; shadowCameraFar: 5.94; shadowCameraNear: 1.73; shadowCameraTop: 6.18; shadowCameraRight: 7.22; shadowCameraBottom: -8.28; shadowCameraLeft: -6.41; distance: 5.74; type: spot"
-        rotation="-90 0 0"></a-entity>
-        <a-entity class="pinos" mixin="pino"></a-entity>
-        <a-entity class="bolas" mixin="bola" position="0 .175 2"></a-entity>
-
+        <!-- ============ ILUMINAÇÃO ============ -->
+        <a-entity light="type: ambient; color: #ffffff; intensity: 0.5"></a-entity>
         
-
-        <a-entity id="rig"
-            movement-controls="controls: keyboard"
-            position="0 0 4">
-        <a-entity camera
-            position="0 1 0"
-            look-controls="pointerLockEnabled: true"
-            ><a-cursor
-            raycaster=""
-            physics-collider
-            phase-shift
-            collision-filter="collisionForces: false"
-            static-body="shape: sphere; sphereRadius: 0.02"
-            ></a-cursor></a-entity>
-            
+        <!-- Luz principal (simulando luzes do teto) -->
+        <a-entity 
+            light="type: spot; color: #ffffff; intensity: 1.2; angle: 60; penumbra: 0.5"
+            position="0 8 -5">
+        </a-entity>
+        
+        <!-- Luzes laterais para atmosfera -->
+        <a-entity 
+            light="type: point; color: #ff9999; intensity: 0.3"
+            position="-5 3 0">
+        </a-entity>
+        <a-entity 
+            light="type: point; color: #9999ff; intensity: 0.3"
+            position="5 3 0">
         </a-entity>
 
+        <!-- ============ AMBIENTE ============ -->
+        
+        <!-- Céu com gradiente -->
+        <a-sky color="#16213e"></a-sky>
+        
+        <!-- Piso principal da sala -->
+        <a-plane
+            position="0 0 0"
+            rotation="-90 0 0"
+            width="30"
+            height="40"
+            material="color: #2d2d44; roughness: 0.8"
+            static-body="shape: box">
+        </a-plane>
 
+        <!-- ============ PISTA DE BOLICHE ============ -->
+        
+        <!-- Pista principal (madeira polida) -->
+        <a-box
+            id="lane"
+            position="0 0.02 -8"
+            width="1.8"
+            height="0.04"
+            depth="25"
+            material="color: #c4a35a; roughness: 0.3; metalness: 0.1"
+            static-body="shape: box">
+        </a-box>
+        
+        <!-- Linhas guia da pista -->
+        <a-box position="-0.3 0.05 -8" width="0.02" height="0.01" depth="20" material="color: #8b7355"></a-box>
+        <a-box position="0 0.05 -8" width="0.02" height="0.01" depth="20" material="color: #8b7355"></a-box>
+        <a-box position="0.3 0.05 -8" width="0.02" height="0.01" depth="20" material="color: #8b7355"></a-box>
+        
+        <!-- Linha de falta -->
+        <a-box position="0 0.05 2" width="1.8" height="0.01" depth="0.05" material="color: #ff4444"></a-box>
+
+        <!-- Paredes laterais da pista -->
+        <a-box
+            position="-0.95 0.15 -8"
+            width="0.1"
+            height="0.3"
+            depth="25"
+            material="color: #4a4a6a; roughness: 0.5"
+            static-body="shape: box">
+        </a-box>
+        <a-box
+            position="0.95 0.15 -8"
+            width="0.1"
+            height="0.3"
+            depth="25"
+            material="color: #4a4a6a; roughness: 0.5"
+            static-body="shape: box">
+        </a-box>
+
+        <!-- Calhas (gutters) -->
+        <a-box
+            position="-1.15 0.02 -8"
+            width="0.3"
+            height="0.08"
+            depth="25"
+            material="color: #1a1a2e"
+            static-body="shape: box">
+        </a-box>
+        <a-box
+            position="1.15 0.02 -8"
+            width="0.3"
+            height="0.08"
+            depth="25"
+            material="color: #1a1a2e"
+            static-body="shape: box">
+        </a-box>
+        
+        <!-- Parede de fundo (atrás dos pinos) -->
+        <a-box
+            position="0 1.5 -21"
+            width="4"
+            height="3"
+            depth="0.2"
+            material="color: #2d2d44"
+            static-body="shape: box">
+        </a-box>
+
+        <!-- ============ DECORAÇÃO ============ -->
+        
+        <!-- Paredes laterais da sala -->
+        <a-box position="-8 2 -5" width="0.2" height="4" depth="30" material="color: #252540"></a-box>
+        <a-box position="8 2 -5" width="0.2" height="4" depth="30" material="color: #252540"></a-box>
+        
+        <!-- Teto parcial -->
+        <a-box position="0 4 -5" width="16" height="0.1" depth="30" material="color: #1a1a2e"></a-box>
+        
+        <!-- Bancada/balcão -->
+        <a-box
+            position="-4 0.5 8"
+            width="3"
+            height="1"
+            depth="1.5"
+            material="color: #3d3d5c"
+            static-body="shape: box">
+        </a-box>
+        
+        <!-- Cadeiras decorativas -->
+        <a-entity position="-3 0 6">
+            <a-box position="0 0.25 0" width="0.5" height="0.5" depth="0.5" material="color: #ff6b6b"></a-box>
+            <a-box position="0 0.6 -0.2" width="0.5" height="0.4" depth="0.1" material="color: #ff6b6b"></a-box>
+        </a-entity>
+        <a-entity position="-5 0 6">
+            <a-box position="0 0.25 0" width="0.5" height="0.5" depth="0.5" material="color: #4ecdc4"></a-box>
+            <a-box position="0 0.6 -0.2" width="0.5" height="0.4" depth="0.1" material="color: #4ecdc4"></a-box>
+        </a-entity>
+
+        <!-- ============ BOLA DE BOLICHE ============ -->
+        <!-- Bola pesada (7kg como bola real) com boa física de colisão -->
         <a-entity
-        class="cube"
-        mixin="cube"
-        position="0 0.265 -1"
-        material="color: red"
-        ></a-entity>
+            id="bola"
+            class="bola interactive"
+            gltf-model="#bolaModel"
+            position="0 0.4 3"
+            scale="1.5 1.5 1.5"
+            dynamic-body="shape: sphere; sphereRadius: 0.27; mass: 7; linearDamping: 0.01; angularDamping: 0.01"
+            shadow="cast: true"
+            bowling-ball>
+            <!-- Fallback visual (sempre visível para garantir clique) -->
+            <a-sphere
+                radius="0.27"
+                material="color: #0066ff; metalness: 0.7; roughness: 0.3; opacity: 0.5; transparent: true"
+                visible="true"
+                id="bola-fallback"
+                class="bola interactive">
+            </a-sphere>
+        </a-entity>
+
+        <!-- ============ 10 PINOS ============ -->
+        <!-- Pinos com física realista - massa leve para derrubar facilmente -->
+        <!-- Forma de colisão: cilindro com altura e raio adequados -->
+        <a-entity id="pinos-container" position="0 0 0">
+            <!-- Linha 1 (frente) - 1 pino -->
+            <a-entity id="pin1" class="pino" gltf-model="#pinoModel" position="0 0.25 -18" 
+                dynamic-body="shape: cylinder; cylinderAxis: y; mass: 0.8; linearDamping: 0.1; angularDamping: 0.1" 
+                scale="0.8 0.8 0.8" bowling-pin>
+                <!-- Colisão visual fallback -->
+                <a-cylinder radius="0.08" height="0.4" material="color: white; opacity: 0.3; transparent: true" position="0 0.2 0"></a-cylinder>
+            </a-entity>
+            
+            <!-- Linha 2 - 2 pinos -->
+            <a-entity id="pin2" class="pino" gltf-model="#pinoModel" position="-0.2 0.25 -18.4" 
+                dynamic-body="shape: cylinder; cylinderAxis: y; mass: 0.8; linearDamping: 0.1; angularDamping: 0.1"
+                scale="0.8 0.8 0.8" bowling-pin>
+                <a-cylinder radius="0.08" height="0.4" material="color: white; opacity: 0.3; transparent: true" position="0 0.2 0"></a-cylinder>
+            </a-entity>
+            <a-entity id="pin3" class="pino" gltf-model="#pinoModel" position="0.2 0.25 -18.4" 
+                dynamic-body="shape: cylinder; cylinderAxis: y; mass: 0.8; linearDamping: 0.1; angularDamping: 0.1"
+                scale="0.8 0.8 0.8" bowling-pin>
+                <a-cylinder radius="0.08" height="0.4" material="color: white; opacity: 0.3; transparent: true" position="0 0.2 0"></a-cylinder>
+            </a-entity>
+            
+            <!-- Linha 3 - 3 pinos -->
+            <a-entity id="pin4" class="pino" gltf-model="#pinoModel" position="-0.4 0.25 -18.8" 
+                dynamic-body="shape: cylinder; cylinderAxis: y; mass: 0.8; linearDamping: 0.1; angularDamping: 0.1"
+                scale="0.8 0.8 0.8" bowling-pin>
+                <a-cylinder radius="0.08" height="0.4" material="color: white; opacity: 0.3; transparent: true" position="0 0.2 0"></a-cylinder>
+            </a-entity>
+            <a-entity id="pin5" class="pino" gltf-model="#pinoModel" position="0 0.25 -18.8" 
+                dynamic-body="shape: cylinder; cylinderAxis: y; mass: 0.8; linearDamping: 0.1; angularDamping: 0.1"
+                scale="0.8 0.8 0.8" bowling-pin>
+                <a-cylinder radius="0.08" height="0.4" material="color: white; opacity: 0.3; transparent: true" position="0 0.2 0"></a-cylinder>
+            </a-entity>
+            <a-entity id="pin6" class="pino" gltf-model="#pinoModel" position="0.4 0.25 -18.8" 
+                dynamic-body="shape: cylinder; cylinderAxis: y; mass: 0.8; linearDamping: 0.1; angularDamping: 0.1"
+                scale="0.8 0.8 0.8" bowling-pin>
+                <a-cylinder radius="0.08" height="0.4" material="color: white; opacity: 0.3; transparent: true" position="0 0.2 0"></a-cylinder>
+            </a-entity>
+            
+            <!-- Linha 4 (fundo) - 4 pinos -->
+            <a-entity id="pin7" class="pino" gltf-model="#pinoModel" position="-0.6 0.25 -19.2" 
+                dynamic-body="shape: cylinder; cylinderAxis: y; mass: 0.8; linearDamping: 0.1; angularDamping: 0.1"
+                scale="0.8 0.8 0.8" bowling-pin>
+                <a-cylinder radius="0.08" height="0.4" material="color: white; opacity: 0.3; transparent: true" position="0 0.2 0"></a-cylinder>
+            </a-entity>
+            <a-entity id="pin8" class="pino" gltf-model="#pinoModel" position="-0.2 0.25 -19.2" 
+                dynamic-body="shape: cylinder; cylinderAxis: y; mass: 0.8; linearDamping: 0.1; angularDamping: 0.1"
+                scale="0.8 0.8 0.8" bowling-pin>
+                <a-cylinder radius="0.08" height="0.4" material="color: white; opacity: 0.3; transparent: true" position="0 0.2 0"></a-cylinder>
+            </a-entity>
+            <a-entity id="pin9" class="pino" gltf-model="#pinoModel" position="0.2 0.25 -19.2" 
+                dynamic-body="shape: cylinder; cylinderAxis: y; mass: 0.8; linearDamping: 0.1; angularDamping: 0.1"
+                scale="0.8 0.8 0.8" bowling-pin>
+                <a-cylinder radius="0.08" height="0.4" material="color: white; opacity: 0.3; transparent: true" position="0 0.2 0"></a-cylinder>
+            </a-entity>
+            <a-entity id="pin10" class="pino" gltf-model="#pinoModel" position="0.6 0.25 -19.2" 
+                dynamic-body="shape: cylinder; cylinderAxis: y; mass: 0.8; linearDamping: 0.1; angularDamping: 0.1"
+                scale="0.8 0.8 0.8" bowling-pin>
+                <a-cylinder radius="0.08" height="0.4" material="color: white; opacity: 0.3; transparent: true" position="0 0.2 0"></a-cylinder>
+            </a-entity>
+        </a-entity>
+
+        <!-- ============ BOTÃO PARA PEGAR A BOLA ============ -->
+        <a-entity id="ball-button-container" position="2 1 5">
+            <!-- Painel do botão -->
+            <a-box 
+                id="ballButton"
+                class="interactive clickable"
+                width="1.2"
+                height="0.8"
+                depth="0.15"
+                material="color: #4CC3D9; roughness: 0.3"
+                ball-button>
+                <!-- Texto do botão -->
+                <a-entity 
+                    position="0 0.15 0.08"
+                    text="value: 🎳 PEGAR; color: white; align: center; width: 3; font: roboto">
+                </a-entity>
+                <a-entity 
+                    position="0 -0.15 0.08"
+                    text="value: BOLA; color: white; align: center; width: 3; font: roboto">
+                </a-entity>
+            </a-box>
+            
+            <!-- Suporte do painel -->
+            <a-cylinder
+                position="0 -0.6 0"
+                radius="0.05"
+                height="0.8"
+                material="color: #333">
+            </a-cylinder>
+            <a-cylinder
+                position="0 -1 0"
+                radius="0.2"
+                height="0.05"
+                material="color: #333">
+            </a-cylinder>
+        </a-entity>
+
+        <!-- ============ PLACAR ============ -->
+        <a-entity bowling-scoreboard></a-entity>
+
+        <!-- ============ JOGADOR ============ -->
+        <a-entity 
+            id="player"
+            position="0 0 8"
+            movement-controls="fly: false; speed: 0.15"
+            kinematic-body>
+            
+            <!-- Câmera -->
+            <a-entity 
+                id="camera"
+                camera 
+                position="0 1.6 0"
+                look-controls="pointerLockEnabled: true">
+                
+                <!-- Cursor para interação -->
+                <a-entity
+                    id="cursor"
+                    cursor="fuse: false; rayOrigin: mouse"
+                    raycaster="objects: .interactive, .clickable, .bola, #bola, #ballButton, #bola-fallback; far: 30; interval: 50; showLine: false"
+                    position="0 0 -0.5"
+                    geometry="primitive: ring; radiusInner: 0.01; radiusOuter: 0.015"
+                    material="color: #4CC3D9; shader: flat"
+                    bowling-cursor>
+                </a-entity>
+            </a-entity>
+            
+            <!-- Mão esquerda para VR -->
+            <a-entity
+                id="left-hand"
+                hand-controls="hand: left; modelColor: #4CC3D9"
+                vr-ball-grabber="hand: left; grabDistance: 0.5; throwMultiplier: 8">
+            </a-entity>
+            
+            <!-- Mão direita para VR -->
+            <a-entity
+                id="right-hand"
+                hand-controls="hand: right; modelColor: #4CC3D9"
+                vr-ball-grabber="hand: right; grabDistance: 0.5; throwMultiplier: 8">
+            </a-entity>
+        </a-entity>
         
     </a-scene>
 
+    <!-- Scripts -->
+    <script>
+        // ============ VARIÁVEIS GLOBAIS ============
+        let isHoldingBall = false;
+        let throwPower = 0;
+        let powerInterval = null;
+        
+        // ============ RESET DO JOGO ============
+        function resetGame() {
+            console.log('🔄 Reiniciando jogo...');
+            
+            // Resetar bola
+            const bola = document.getElementById('bola');
+            if (bola) {
+                const body = bola.components['dynamic-body'];
+                if (body && body.body) {
+                    body.body.velocity.set(0, 0, 0);
+                    body.body.angularVelocity.set(0, 0, 0);
+                    body.body.position.set(0, 0.4, 3);
+                }
+                bola.setAttribute('position', '0 0.4 3');
+            }
+            
+            // Resetar pinos (novas posições com espaçamento maior)
+            const pinsData = [
+                { id: 'pin1', pos: '0 0.25 -18' },
+                { id: 'pin2', pos: '-0.2 0.25 -18.4' },
+                { id: 'pin3', pos: '0.2 0.25 -18.4' },
+                { id: 'pin4', pos: '-0.4 0.25 -18.8' },
+                { id: 'pin5', pos: '0 0.25 -18.8' },
+                { id: 'pin6', pos: '0.4 0.25 -18.8' },
+                { id: 'pin7', pos: '-0.6 0.25 -19.2' },
+                { id: 'pin8', pos: '-0.2 0.25 -19.2' },
+                { id: 'pin9', pos: '0.2 0.25 -19.2' },
+                { id: 'pin10', pos: '0.6 0.25 -19.2' }
+            ];
+            
+            pinsData.forEach(pin => {
+                const pinEl = document.getElementById(pin.id);
+                if (pinEl) {
+                    // Usar componente bowling-pin se disponível
+                    const bowlingPin = pinEl.components['bowling-pin'];
+                    if (bowlingPin && bowlingPin.reset) {
+                        bowlingPin.reset();
+                    } else {
+                        // Fallback manual
+                        const body = pinEl.components['dynamic-body'];
+                        if (body && body.body) {
+                            const [x, y, z] = pin.pos.split(' ').map(Number);
+                            body.body.velocity.set(0, 0, 0);
+                            body.body.angularVelocity.set(0, 0, 0);
+                            body.body.position.set(x, y, z);
+                            body.body.quaternion.set(0, 0, 0, 1);
+                        }
+                        pinEl.setAttribute('position', pin.pos);
+                        pinEl.setAttribute('rotation', '0 0 0');
+                    }
+                }
+            });
+            
+            // Resetar placar
+            const scoreboard = document.querySelector('[bowling-scoreboard]');
+            if (scoreboard && scoreboard.components['bowling-scoreboard']) {
+                scoreboard.components['bowling-scoreboard'].reset();
+            }
+            
+            console.log('✅ Jogo reiniciado!');
+        }
+        
+        // ============ VERIFICAÇÃO DE CARREGAMENTO ============
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('📦 DOM carregado');
+            
+            const scene = document.querySelector('a-scene');
+            if (scene) {
+                scene.addEventListener('loaded', function() {
+                    console.log('✅ Cena A-Frame carregada!');
+                    
+                    // Verificar modelos após um tempo
+                    setTimeout(function() {
+                        const bola = document.getElementById('bola');
+                        if (bola) {
+                            const gltfModel = bola.components['gltf-model'];
+                            if (!gltfModel || !gltfModel.model) {
+                                console.warn('⚠️ Usando fallback para bola');
+                                const fallback = document.getElementById('bola-fallback');
+                                if (fallback) fallback.setAttribute('visible', 'true');
+                            } else {
+                                console.log('✅ Modelo da bola carregado');
+                            }
+                        }
+                        
+                        // Verificar pinos
+                        const pinos = document.querySelectorAll('.pino');
+                        console.log(`📌 ${pinos.length} pinos encontrados`);
+                    }, 2000);
+                });
+            }
+        });
+    </script>
+    <script src="bowling-ball-interaction.js"></script>
     <script src="bowling-scoreboard.js"></script>
-    <script src="bowling-gutters.js"></script>
-    <script src="setup-gutters.js"></script>
-    <script src="bowling-lane-colliders.js"></script>
-    <script src="setup-lane.js"></script>
-    <script src="bowling-cursor-interaction.js"></script>
-    <script src="setup-pins.js"></script>
-    
 </body>
 </html>
